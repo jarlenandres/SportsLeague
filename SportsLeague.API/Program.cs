@@ -1,5 +1,3 @@
-
-
 using Microsoft.EntityFrameworkCore;
 using SportsLeague.DataAccess.Context;
 using SportsLeague.DataAccess.Repositories;

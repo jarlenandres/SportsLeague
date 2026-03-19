@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SportsLeague.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SportsLeague.DataAccess.Context;
 

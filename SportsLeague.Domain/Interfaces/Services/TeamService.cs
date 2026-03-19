@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SportsLeague.Domain.Entities;
 using SportsLeague.Domain.Interfaces.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SportsLeague.Domain.Interfaces.Services;
 
@@ -17,7 +14,7 @@ public class TeamService : ITeamService
         _teamRepository = teamRepository;
         _logger = logger;
     }
-    
+
     public async Task<IEnumerable<Team>> GetAllAsync()
     {
         _logger.LogInformation("Retrieving all teams");
@@ -84,7 +81,7 @@ public class TeamService : ITeamService
     public async Task DeleteAsync(int id)
     {
         var exists = await _teamRepository.ExistsAsync(id);
-        if ( !exists )
+        if (!exists)
         {
             _logger.LogWarning("Team with ID {TeamId} not found for deletion", id);
             throw new KeyNotFoundException(

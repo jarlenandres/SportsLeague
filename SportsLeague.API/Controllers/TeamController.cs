@@ -36,7 +36,7 @@ public class TeamController : ControllerBase
     public async Task<ActionResult<TeamResponseDTO>> GetById(int id)
     {
         var team = await _teamService.GetByIdAsync(id);
-        
+
         if (team == null)
         {
             return NotFound(new { message = $"Equipo con ID {id} no encotrado" });

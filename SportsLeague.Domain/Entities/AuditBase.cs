@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SportsLeague.Domain.Entities;
+﻿namespace SportsLeague.Domain.Entities;
 
 public abstract class AuditBase
 {
