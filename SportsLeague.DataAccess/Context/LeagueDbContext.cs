@@ -8,12 +8,15 @@ public class LeagueDbContext : DbContext
     public LeagueDbContext(DbContextOptions<LeagueDbContext> options) : base(options)
     {
     }
+
     public DbSet<Team> Teams => Set<Team>();
+    public DbSet<Player> Players => Set<Player>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        // -- Team Entity Configuration --
         modelBuilder.Entity<Team>(entity =>
         {
             entity.HasKey(t => t.Id);
@@ -32,6 +35,38 @@ public class LeagueDbContext : DbContext
             entity.Property(t => t.UpdatedAt)
                 .IsRequired(false);
             entity.HasIndex(t => t.Name)
+                .IsUnique();
+        });
+
+        // -- Player Entity Configuration --
+        modelBuilder.Entity<Player>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+            entity.Property(p => p.FirstName)
+                .IsRequired()
+                .HasMaxLength(80);
+            entity.Property(p => p.LastName)
+                .IsRequired()
+                .HasMaxLength(80);
+            entity.Property(p => p.BirthDate)
+                .IsRequired();
+            entity.Property(p => p.Number)
+                .IsRequired();
+            entity.Property(p => p.Position)
+                .IsRequired();
+            entity.Property(p => p.CreatedAt)
+                .IsRequired();
+            entity.Property(p => p.UpdatedAt)
+                .IsRequired(false);
+
+            // Configure the relationship with Team
+            entity.HasOne(p => p.Team)
+                .WithMany(t => t.Players)
+                .HasForeignKey(p => p.TeamId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Índice único compuesto: número de camisa único por equipo
+            entity.HasIndex(p => new { p.TeamId, p.Number })
                 .IsUnique();
         });
     }
