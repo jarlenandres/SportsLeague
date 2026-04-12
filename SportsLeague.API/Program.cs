@@ -3,21 +3,22 @@ using SportsLeague.DataAccess.Context;
 using SportsLeague.DataAccess.Repositories;
 using SportsLeague.Domain.Interfaces.Repositories;
 using SportsLeague.Domain.Interfaces.Services;
+using SportsLeague.Domain.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // --Entity Framework Core --
-builder.Services.AddDbContext<LeagueDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaulConnection")));
+builder.Services.AddDbContext<LeagueDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // -- Repositories  --
 builder.Services.AddScoped(typeof(IGenericRepository<>),
     typeof(GenericRepository<>));
 builder.Services.AddScoped<ITeamRepository, TeamRepositiry>();
+builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
 
 // -- Services  --
 builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<IPlayerService, PlayerService>();
 
 // -- AutoMapper --
 builder.Services.AddAutoMapper(typeof(Program).Assembly);

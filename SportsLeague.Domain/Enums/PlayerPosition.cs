@@ -2,8 +2,8 @@
 
 public enum PlayerPosition
 {
-    GoalKeeper = 0,
-    Defender = 1,
-    Midfielder = 2,
-    Forward = 3
+    GoalKeeper = 0,  //Arquero
+    Defender = 1,    //Defensor
+    Midfielder = 2,  //Mediocampista
+    Forward = 3      //Delantero
 }

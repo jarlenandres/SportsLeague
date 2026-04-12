@@ -5,7 +5,7 @@ using SportsLeague.Domain.Interfaces.Services;
 
 namespace SportsLeague.Domain.Services;
 
-internal class PlayerService : IPlayerService
+public class PlayerService : IPlayerService
 {
     private readonly IPlayerRepository _playerRepository;
     private readonly ITeamRepository _teamRepository;
