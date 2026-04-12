@@ -10,4 +10,6 @@ public class Team : AuditBase
 
     // Navigation property for related players - Colección de jugadores en el equipo
     public ICollection<Player> Players { get; set; } = new List<Player>();
+
+    public ICollection<TournamentTeam> TournamentTeams { get; set; } = new List<TournamentTeam>();
 }
