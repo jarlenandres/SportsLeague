@@ -27,6 +27,7 @@ public class PlayerService : IPlayerService
     public async Task<Player?> GetByIdAsync(int id)
     {
         _logger.LogInformation("Retrieving player with ID {PlayerId}.", id);
+
         var player = await _playerRepository.GetByIdWithTeamAsync(id);
         if (player == null)
         {
