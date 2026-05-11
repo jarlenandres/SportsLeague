@@ -361,3 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/SportsLeague.Domain/Interfaces/Services/ISponsorService.cs
