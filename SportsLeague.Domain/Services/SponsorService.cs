@@ -10,7 +10,7 @@ public class SponsorService : ISponsorService
 {
     private readonly ISponsorRepository _sponsorRepository;
     private readonly ITournamentRepository _tournamentRepository;
-    private readonly ITournamentSponsorRepository _tournamentSponsorService;
+    private readonly ITournamentSponsorRepository _tournamentSponsorRepository;
     private readonly ILogger<SponsorService> _logger;
 
     public SponsorService(
@@ -21,7 +21,7 @@ public class SponsorService : ISponsorService
     {
         _sponsorRepository = sponsorRepository;
         _tournamentRepository = tournamentRepository;
-        _tournamentSponsorService = tournamentSponsorRepository;
+        _tournamentSponsorRepository = tournamentSponsorRepository;
         _logger = logger;
     }
 
@@ -127,7 +127,15 @@ public class SponsorService : ISponsorService
         await _sponsorRepository.DeleteAsync(id);
     }
 
-
+    public Task<IEnumerable<TournamentSponsor>> GetSponsorByTournamentAsync(int sponsorId)
+    {
+        var sponsor = _sponsorRepository.ExistsAsync(sponsorId);
+        if (sponsor == null)
+        {
+            throw new KeyNotFoundException($"No se encontro el patrocinador con ID {sponsorId}");
+        }
+        return _tournamentSponsorRepository.GetBySponsorAsync(sponsorId);
+    }
 
     private static void ValidateEmail(string contactEmail)
     {
@@ -140,4 +148,6 @@ public class SponsorService : ISponsorService
             throw new InvalidOperationException("El correo debe tener un formato valido.");
         }
     }
+
+
 }
