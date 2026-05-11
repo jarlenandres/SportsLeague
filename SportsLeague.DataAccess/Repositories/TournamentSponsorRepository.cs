@@ -5,7 +5,7 @@ using SportsLeague.Domain.Interfaces.Repositories;
 
 namespace SportsLeague.DataAccess.Repositories;
 
-internal class TournamentSponsorRepository : GenericRepository<TournamentSponsor>, ITournamentSponsorRepository
+public class TournamentSponsorRepository : GenericRepository<TournamentSponsor>, ITournamentSponsorRepository
 {
     public TournamentSponsorRepository(LeagueDbContext context) : base(context)
     {

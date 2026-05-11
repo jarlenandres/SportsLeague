@@ -188,7 +188,7 @@ public class LeagueDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Indice único compuesto: un patrocinador solo puede registrarse una vez
-            entity.HasIndex(ts => new { ts.TournamentIde, ts.SponsorId })
+            entity.HasIndex(ts => new { ts.TournamentId, ts.SponsorId })
                 .IsUnique();
         });
     }
