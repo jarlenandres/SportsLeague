@@ -100,9 +100,21 @@ public class MatchService : IMatchService
         return await _matchRepository.CreateAsync(match);
     }
 
-    public Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        var existing = await _matchRepository.GetByIdAsync(id);
+        if (existing == null)
+        {
+            throw new KeyNotFoundException($"No se encontró el partido con ID {id}");
+        }
+
+        if (existing.Status != MatchStatus.Scheduled)
+        {
+            throw new InvalidOperationException("Solo se pueden eliminar partidos con estado Scheduled");
+        }
+
+        _logger.LogInformation("Deleting match with ID: {MatchId}", id);
+        await _matchRepository.DeleteAsync(id);
     }
 
     public async Task<Match?> GetByIdAsync(int id)
@@ -111,13 +123,78 @@ public class MatchService : IMatchService
         return await _matchRepository.GetByWithDetailAsync(id);
     }
 
-    public Task UpdateAsync(int id, Match match)
+    public async Task UpdateAsync(int id, Match match)
     {
-        throw new NotImplementedException();
+        var existing = await _matchRepository.GetByIdAsync(id);
+        if (existing == null)
+        {
+            throw new KeyNotFoundException($"No se encontró el partido con ID {id}");
+        }
+
+        if (existing.Status != MatchStatus.Scheduled)
+        {
+            throw new InvalidOperationException("Solo se pueden actualizar partidos con estado Scheduled.");
+        }
+
+        // Mismaa validación que en CreateAsync para asegurar integridad de datos
+        if (match.HomeTeamId == match.AwayTeamId)
+        {
+            throw new InvalidOperationException("El equipo local y visitante deben ser diferentes.");
+        }
+
+        var homeEnrolled = await _tournamentTeamRepository.GetByTournamentAndTeamAsync(existing.TournamentId, match.HomeTeamId);
+        if (homeEnrolled == null)
+        {
+            throw new InvalidOperationException("El equipo local no está inscrito en el torneo.");
+        }
+
+        var awayEnrolled = await _tournamentTeamRepository.GetByTournamentAndTeamAsync(existing.TournamentId, match.AwayTeamId);
+        if (awayEnrolled == null)
+        {
+            throw new InvalidOperationException("El equipo visitante no está inscrito en el torneo.");
+        }
+
+        var refereeExists = await _refereeRepository.ExistsAsync(match.RefereeId);
+        if (!refereeExists)
+        {
+            throw new KeyNotFoundException($"No se encontró el árbitro con ID {match.RefereeId}");
+        }
+
+        existing.HomeTeamId = match.HomeTeamId;
+        existing.AwayTeamId = match.AwayTeamId;
+        existing.RefereeId = match.RefereeId;
+        existing.MatchDate = match.MatchDate;
+        existing.Venue = match.Venue;
+        existing.Matchday = match.Matchday;
+
+        _logger.LogInformation("Updatin match with ID: {MatchId}", id);
+        await _matchRepository.UpdateAsync(existing);
     }
 
-    public Task UpdateStatusAsync(int id, MatchStatus newStatus)
+    public async Task UpdateStatusAsync(int id, MatchStatus newStatus)
     {
-        throw new NotImplementedException();
+        var match = await _matchRepository.GetByIdAsync(id);
+        if (match == null)
+        {
+            throw new KeyNotFoundException($"No se encontró el partido con ID {id}");
+        }
+
+        var validTransition = (match.Status, newStatus) switch
+        {
+            (MatchStatus.Scheduled, MatchStatus.InProgress) => true,
+             (MatchStatus.InProgress, MatchStatus.Finished) => true,
+             (MatchStatus.Scheduled, MatchStatus.Suspended) => true,
+             (MatchStatus.InProgress, MatchStatus.Suspended) => true,
+             _ => false
+        };
+
+        if (!validTransition)
+        {
+            throw new InvalidOperationException($"No se puede cambiar de {match.Status} a {newStatus}");
+        }
+        match.Status = newStatus;
+
+        _logger.LogInformation("Updating match {matchId} status to {newStatus}", id, newStatus);
+        await _matchRepository.UpdateAsync(match);
     }
 }
