@@ -64,7 +64,7 @@ public class SponsorService : ISponsorService
 
         var normalizedName = sponsor.Name.Trim();
         var normalizedEmail = sponsor.ContactEmail.Trim();
-        var normalizedPhoto = string.IsNullOrWhiteSpace(sponsor.Phone) ? null : sponsor.Phone.Trim();
+        var normalizedPhono = string.IsNullOrWhiteSpace(sponsor.Phone) ? null : sponsor.Phone.Trim();
         var normalizedWebsite = string.IsNullOrWhiteSpace(sponsor.WebsiteUrl) ? null : sponsor.WebsiteUrl.Trim();
 
         ValidateEmail(normalizedEmail);
@@ -78,7 +78,7 @@ public class SponsorService : ISponsorService
 
         sponsor.Name = normalizedName;
         sponsor.ContactEmail = normalizedEmail;
-        sponsor.Phone = normalizedPhoto;
+        sponsor.Phone = normalizedPhono;
         sponsor.WebsiteUrl = normalizedWebsite;
 
         _logger.LogInformation("Creating sponsor: {SponsorName}", sponsor.Name);
@@ -149,5 +149,67 @@ public class SponsorService : ISponsorService
         }
     }
 
+    public async Task<TournamentSponsor> LinkTournamentAsync(int sponsorId, int tournamentId, decimal contractAmount)
+    {
+        var sponsor = await _sponsorRepository.GetByIdAsync(sponsorId);
+        if (sponsor == null)
+        {
+            throw new KeyNotFoundException($"No se encontro el patrocinador con ID {sponsorId}.");
+        }
 
+        var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
+        if (tournament == null)
+        {
+            throw new KeyNotFoundException($"No se encontro el torneo con ID {tournamentId}.");
+        }
+
+        var existingLink = await _tournamentSponsorRepository.GetByTournamentAndSponsorAsync(tournamentId, sponsorId);
+        if (existingLink != null)
+        {
+            throw new InvalidOperationException("El patrocinador ya está vinculado al torneo");
+        }
+
+        if (contractAmount <= 0)
+        {
+            throw new InvalidOperationException("El valor del contrato debe ser mayor a 0");
+        }
+
+        var tournamentSponsor = new TournamentSponsor
+        {
+            TournamentId = tournamentId,
+            SponsorId = sponsorId,
+            ContractAmount = contractAmount,
+            JoinedAt = DateTime.UtcNow
+        };
+
+        _logger.LogInformation("<linking sporsor {SponsorId} to tournament {TournamentId}", sponsorId, tournamentId);
+
+        await _tournamentSponsorRepository.CreateAsync(tournamentSponsor);
+        return await _tournamentSponsorRepository.GetByTournamentAndSponsorAsync(tournamentId, sponsorId) ?? tournamentSponsor;
+    }
+
+    public async Task<IEnumerable<TournamentSponsor>> GetTournamentsBySponsorAsync(int sponsorId)
+    {
+        var sponsor = await _sponsorRepository.GetByIdAsync(sponsorId);
+        if (sponsor == null)
+        {
+            throw new KeyNotFoundException($"No se encontro el patrocinador con ID {sponsorId}.");
+        }
+
+        return await _tournamentSponsorRepository.GetBySponsorAsync(sponsorId);
+
+    }
+
+    public async Task UnlinkTournamentAsync(int sponsorId, int tournamentId)
+    {
+        var existingLink = await _tournamentSponsorRepository.GetByTournamentAndSponsorAsync(tournamentId, sponsorId);
+        if (existingLink == null)
+        {
+            throw new KeyNotFoundException($"No se encontro la vinculación del patrocinador {sponsorId} con el torneo {tournamentId}.");
+        }
+
+        _logger.LogInformation("Unlinking sponsor {SponsorId} from tournament {tournamentId}", sponsorId, tournamentId);
+
+        await _tournamentSponsorRepository.DeleteAsync(existingLink.Id);
+    }
 }

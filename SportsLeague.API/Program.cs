@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SportsLeague.API.Mappings;
 using SportsLeague.DataAccess.Context;
 using SportsLeague.DataAccess.Repositories;
 using SportsLeague.Domain.Interfaces.Repositories;
@@ -30,6 +31,7 @@ builder.Services.AddScoped<ISponsorService, SponsorService>();
 
 // -- AutoMapper --
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 // -- Controllers --
 builder.Services.AddControllers();

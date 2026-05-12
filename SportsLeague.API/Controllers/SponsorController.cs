@@ -48,6 +48,7 @@ public class SponsorController : ControllerBase
             var sponsor = _mapper.Map<Sponsor>(dto);
             var created = await _sponsorService.CreateAsync(sponsor);
             var responseDto = _mapper.Map<SponsorResponseDTO>(created);
+
             return CreatedAtAction(nameof(GetById), new { id = responseDto.Id }, responseDto);
         }
         catch (InvalidOperationException ex)

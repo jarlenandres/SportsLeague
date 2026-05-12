@@ -154,7 +154,7 @@ public class LeagueDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(200);
             entity.Property(s => s.Phone)
-                .HasMaxLength(10);
+                .HasMaxLength(20);
             entity.Property(s => s.WebsiteUrl)
                 .HasMaxLength(500);
             entity.Property(s => s.Category)
