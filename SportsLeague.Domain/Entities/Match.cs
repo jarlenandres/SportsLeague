@@ -18,4 +18,11 @@ public class Match : AuditBase
     public Team HomeTeam { get; set; } = null!;
     public Team AwayTeam { get; set; } = null!;
     public Referee Referee { get; set; } = null!;
+
+    // Relation 1:1 with Result
+    public MatchResult? MatchResult { get; set; }
+
+    //Relation 1:N with Goal and Card
+    public ICollection<Goal> Goals { get; set; } = new List<Goal>();
+    public ICollection<Card> Cards { get; set; } = new List<Card>();
 }
